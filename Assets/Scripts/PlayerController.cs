@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rigidbody;
     private Massful massful;
 
+    private PlayerOrbitPlotter plotter;
+
     public float RotationSpeed;
     public float EngineForce;
 
@@ -17,12 +19,16 @@ public class PlayerController : MonoBehaviour
     {
         rigidbody = GetComponent<Rigidbody>();
         massful = GetComponent<Massful>();
+        plotter = GetComponent<PlayerOrbitPlotter>();
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        Vector3 moveForce = Vector3.forward * (Input.GetAxis("Vertical") * EngineForce);
+        var moveForce = Vector3.forward * (Input.GetAxis("Vertical") * EngineForce);
+
+        if(moveForce.magnitude > 0) plotter.Replot();
+
         rigidbody.AddRelativeForce(moveForce);
 
         var rot = rigidbody.rotation.eulerAngles;

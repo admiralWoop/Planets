@@ -10,7 +10,8 @@ using Debug = System.Diagnostics.Debug;
 
 public class PlanetController : MonoBehaviour
 {
-    private List<Planet> _planets;
+    private List<Planet> planets;
+
 
     public float G;
 
@@ -27,7 +28,7 @@ public class PlanetController : MonoBehaviour
 
     void Initialize()
     {
-        _planets = FindObjectsOfType<Planet>().Where(p => p.Parent != null).ToList();
+        planets = FindObjectsOfType<Planet>().Where(p => p.Parent != null).ToList();
     }
 
     void FixedUpdate()
@@ -41,7 +42,7 @@ public class PlanetController : MonoBehaviour
 
     private void PlacePlanetsAtEpoch(float time)
     {
-        foreach (var planet in _planets)
+        foreach (var planet in planets)
         {
             planet.transform.position = GetPosAtEpoch(planet, time, G);
             var parentPlanet = planet.Parent;

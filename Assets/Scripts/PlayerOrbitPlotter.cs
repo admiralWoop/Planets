@@ -12,7 +12,7 @@ public class PlayerOrbitPlotter : MonoBehaviour
     private Rigidbody playerRigidbody;
     [SerializeField]
     private LineRenderer lineRenderer;
-    private List<(float epoch, Vector3 position)> plottedOrbit;
+    private List<(float epoch, Vector3 position, Vector3 velocity)> plottedOrbit;
 
     public bool EnablePlotting;
     [Range(1, 240)]
@@ -46,32 +46,48 @@ public class PlayerOrbitPlotter : MonoBehaviour
     {
         playerRigidbody = player.GetComponent<Rigidbody>();
         planets = FindObjectsOfType<Planet>().ToList();
-        plottedOrbit = new List<(float epoch, Vector3 position)>();
+        plottedOrbit = new List<(float epoch, Vector3 position, Vector3 velocity)>();
 
         lineRenderer.SetPositions(new Vector3[lineRenderer.positionCount]);
     }
 
     void DrawPlot(float time)
     {
-        plottedOrbit = PlotOrbit(player.transform.position, playerRigidbody.velocity, time, time + PlotDuration, PlotDetail,  G);
+        var startEpoch = plottedOrbit.Any() ? plottedOrbit.Last().epoch : time;
+        var startPos = plottedOrbit.Any() ? plottedOrbit.Last().position : playerRigidbody.position;
+        var startVel = plottedOrbit.Any() ? plottedOrbit.Last().velocity : playerRigidbody.velocity;
+
+        if (startEpoch > time + PlotDuration) return;
+
+        if (plottedOrbit.Any())
+        {
+            foreach (var point in plottedOrbit.Where(pair => pair.epoch <= time).ToList())
+            {
+                plottedOrbit.Remove(point);
+            }
+        }
+
+        plottedOrbit.AddRange(PlotOrbit(startPos, startVel, startEpoch, startEpoch + PlotDuration, PlotDetail));
 
         lineRenderer.positionCount = plottedOrbit.Count();
         lineRenderer.SetPositions(plottedOrbit.Select(o => o.position).ToArray());
     }
 
-    public List<(float epoch, Vector3 position)> PlotOrbit(Vector3 playerPosAtStart, Vector3 playerVelAtStart, float startEpoch, float endEpoch, float step, float G)
+    public List<(float epoch, Vector3 position, Vector3 velocity)> PlotOrbit(Vector3 playerPosAtStart, Vector3 playerVelAtStart, float startEpoch, float endEpoch, float step)
     {
+        Debug.Log("Plotting from " + startEpoch + " to " + endEpoch);
+
         if (step <= 0) throw new ArgumentOutOfRangeException(nameof(step), "Step cannot be less or equal to zero.");
 
         var playerMass = playerRigidbody.mass;
-        var plot = new List<(float epoch, Vector3 position)>();
+        var plot = new List<(float epoch, Vector3 position, Vector3 velocity)>();
 
         var playerVel = playerVelAtStart;
         var playerPos = playerPosAtStart;
 
-        for (var t = startEpoch + step; t < endEpoch; t += step)
+        for (var t = startEpoch + step; t <= endEpoch; t += step)
         {
-            if (planets.Select(planet => PlanetController.GetPosAtEpoch(planet, t, G)).Any(p => (playerPos - p).magnitude < 1)) break; //break if we got too close to a planet
+            if (planets.Select(planet => PlanetController.GetPosAtEpoch(planet, t, G)).Any(p => (playerPos - p).magnitude < 3)) break; //break if we got too close to a planet
 
             var sF = planets
                 .Select(planet => PhysicsHelper.GetForce(
@@ -83,8 +99,13 @@ public class PlayerOrbitPlotter : MonoBehaviour
                 .Aggregate((Vector3 a, Vector3 b) => a + b); //ΣF - sum of all forces
             playerVel += (sF / playerMass) * (float)step;
             playerPos += playerVel * (float)step;
-            plot.Add((t, playerPos));
+            plot.Add((t, playerPos, playerVel));
         }
         return plot;
+    }
+
+    public void Replot()
+    {
+        plottedOrbit.Clear();
     }
 }
