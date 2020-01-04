@@ -12,7 +12,7 @@ public class PlayerOrbitPlotter : MonoBehaviour
     private Rigidbody playerRigidbody;
     [SerializeField]
     private LineRenderer lineRenderer;
-    private List<(double epoch, Vector3 position)> plottedOrbit;
+    private List<(float epoch, Vector3 position)> plottedOrbit;
 
     public bool EnablePlotting;
     [Range(1, 240)]
@@ -22,7 +22,7 @@ public class PlayerOrbitPlotter : MonoBehaviour
     [Range(0.02f, 1f)]
     public float PlotDetail;
 
-    public double G;
+    public float G;
 
     void Start()
     {
@@ -46,7 +46,7 @@ public class PlayerOrbitPlotter : MonoBehaviour
     {
         playerRigidbody = player.GetComponent<Rigidbody>();
         planets = FindObjectsOfType<Planet>().ToList();
-        plottedOrbit = new List<(double epoch, Vector3 position)>();
+        plottedOrbit = new List<(float epoch, Vector3 position)>();
 
         lineRenderer.SetPositions(new Vector3[lineRenderer.positionCount]);
     }
@@ -59,17 +59,15 @@ public class PlayerOrbitPlotter : MonoBehaviour
         lineRenderer.SetPositions(plottedOrbit.Select(o => o.position).ToArray());
     }
 
-    public List<(double epoch, Vector3 position)> PlotOrbit(Vector3 playerPosAtStart, Vector3 playerVelAtStart, double startEpoch, double endEpoch, double step, double G)
+    public List<(float epoch, Vector3 position)> PlotOrbit(Vector3 playerPosAtStart, Vector3 playerVelAtStart, float startEpoch, float endEpoch, float step, float G)
     {
         if (step <= 0) throw new ArgumentOutOfRangeException(nameof(step), "Step cannot be less or equal to zero.");
 
         var playerMass = playerRigidbody.mass;
-        var plot = new List<(double epoch, Vector3 position)>();
+        var plot = new List<(float epoch, Vector3 position)>();
 
         var playerVel = playerVelAtStart;
         var playerPos = playerPosAtStart;
-
-        plot.Add((startEpoch, playerPos));
 
         for (var t = startEpoch + step; t < endEpoch; t += step)
         {

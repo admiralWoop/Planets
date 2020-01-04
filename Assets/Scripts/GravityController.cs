@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class GravityController : MonoBehaviour
 {
-    public double G;
+    public float G;
 
     private List<Planet> planets;
 

@@ -12,7 +12,7 @@ public class PlanetController : MonoBehaviour
 {
     private List<Planet> _planets;
 
-    public double G;
+    public float G;
 
     public void OnValidate()
     {
@@ -53,7 +53,7 @@ public class PlanetController : MonoBehaviour
         }
     }
 
-    public static Vector3 GetPosAtEpoch(Planet planet, double time, double G)
+    public static Vector3 GetPosAtEpoch(Planet planet, float time, float G)
     {
         if (planet.Parent == null) return planet.transform.position;
 
@@ -72,11 +72,11 @@ public class PlanetController : MonoBehaviour
 
         var period = 2 * Math.PI * Math.Sqrt(Math.Pow(a, 3) / (G * n));
 
-        time %= period;
+        time %= (float)period;
 
         var M = n * time; //mean anomaly
         //2.Compute the eccentric anomaly E by solving Kepler's equation
-        var E = CalculateE(e, M);
+        var E = CalculateE(e, (float)M);
         //3.Compute the true anomaly v by the equation
         var v = 2 * Math.Atan(Math.Sqrt((1 + e) / (1 - e)) * Math.Tan(E / 2));
         v += arg;
@@ -88,14 +88,14 @@ public class PlanetController : MonoBehaviour
         return dir * (float)d;
     }
 
-    static double CalculateE(double e, double M)
+    static float CalculateE(float e, float M)
     {
         var E_ = M;
-        double E;
+        float E;
 
         for (int i = 0; i < 100; i++)
         {
-            E = E_ - (E_ - e * Math.Sin(E_) - M) / (1 - e * Math.Cos((E_)));
+            E = (float)(E_ - (E_ - e * Math.Sin(E_) - M) / (1 - e * Math.Cos((E_))));
             E_ = E;
         }
 

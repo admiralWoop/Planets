@@ -7,11 +7,11 @@ using UnityEngine;
 
 public static class PhysicsHelper
 {
-    public static Vector3 GetForce(Vector3 massfulPos, double massfulMass, Vector3 PlanetPos, double planetMass, double G)
+    public static Vector3 GetForce(Vector3 massfulPos, float massfulMass, Vector3 PlanetPos, float planetMass, float G)
     {
         var m = massfulMass * planetMass;
         var r = (massfulPos - PlanetPos).sqrMagnitude;
-        var F = -(G * (double)(m / r));
+        var F = -(G * (float)(m / r));
         var force = (massfulPos - PlanetPos).normalized * (float)F;
         return force;
     }

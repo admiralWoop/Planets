@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class Planet : MonoBehaviour
 {
-    public double Apoapsis;
-    public double Periapsis;
-    public double ArgumentOfPeriapsis;
-    public double Mass;
+    public float Apoapsis;
+    public float Periapsis;
+    public float ArgumentOfPeriapsis;
+    public float Mass;
     public Planet Parent;
 }

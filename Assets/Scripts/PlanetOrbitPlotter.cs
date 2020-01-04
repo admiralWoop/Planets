@@ -12,10 +12,10 @@ public class PlanetOrbitPlotter : MonoBehaviour
     [Range(1f, 50f)]
     public float PlotFrequency;
 
-    public double G;
+    public float G;
 
     private List<Planet> _planets;
-    private Dictionary<string, List<(double epoch, Vector3 vector)>> _planetsOrbitPlots;
+    private Dictionary<string, List<(float epoch, Vector3 vector)>> _planetsOrbitPlots;
     private Dictionary<string, LineRenderer> _lineRenderers;
 
     void Start()
@@ -38,12 +38,12 @@ public class PlanetOrbitPlotter : MonoBehaviour
 
     private void Initialize()
     {
-        _planetsOrbitPlots = new Dictionary<string, List<(double epoch, Vector3 vector)>>();
+        _planetsOrbitPlots = new Dictionary<string, List<(float epoch, Vector3 vector)>>();
         _planets = FindObjectsOfType<Planet>().Where(p => p.Parent != null).ToList();
 
         foreach (var planet in _planets)
         {
-            _planetsOrbitPlots.Add(planet.name, new List<(double epoch, Vector3 vector)>());
+            _planetsOrbitPlots.Add(planet.name, new List<(float epoch, Vector3 vector)>());
         }
 
 
@@ -89,11 +89,11 @@ public class PlanetOrbitPlotter : MonoBehaviour
         }
     }
 
-    private List<(double epoch, Vector3 position)> PlotOrbit(Planet planet, double startEpoch, double endEpoch, double step = 0.02, bool isRelative = false)
+    private List<(float epoch, Vector3 position)> PlotOrbit(Planet planet, float startEpoch, float endEpoch, float step = 0.02f, bool isRelative = false)
     {
         if (step <= 0) throw new ArgumentOutOfRangeException(nameof(step), "Step cannot be less or equal to zero.");
 
-        var verteciesWithEpochs = new List<(double, Vector3)>();
+        var verteciesWithEpochs = new List<(float, Vector3)>();
 
         for (var epoch = startEpoch; epoch <= endEpoch; epoch += step)
         {
